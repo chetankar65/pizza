@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <title>All available items | Order now</title>
+    <style>
+        .carousel-inner img{
+            width: 50%;
+            height: 50%;
+        }
+        /* The Modal (background) */
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      }
+
+      /* Modal Content/Box */
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+      }
+
+      /* The Close Button */
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Pinocchio's Pizza</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pizza Wallet</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/cart">Cart {% if cart_items %} ({{cart_items}}) {% endif %}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout_view' %}">Logout</a>
+          </li>
+          {% if request.user.is_superuser %}
+          <li class="nav-item">
+            <a class="nav-link" href="/orders">All orders</a>
+          </li>
+          {% endif%}
+        </ul>
+      </nav><br><br><br>
+    <div id="pizzas" align='center'>
+      <div class="container" align='center'>
+        <h2>Regular Pizzas</h2><br>
+        <table class="table table-dark">
+          <thead>
+            <tr>
+              <th>Pizza</th>
+              <th>Size</th>
+              <th>Toppings</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Customise</th>
+            </tr>
+          </thead>
+            <tbody>
+                {% for regular in regulars %}
+                  <tr>
+                    <td>{{regular.name}}</td>
+                    {% if regular.size == '1' %}
+                      <td>
+                        Small
+                      </td>
+                      {% else %}
+                      <td>
+                        Large
+                      </td>
+                    {% endif %}
+                    <td>{{regular.toppings}}</td>
+                    <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="pizza{{regular.id}}"></form></td>
+                    <td>${{regular.price}}</td>
+                    <td><button class="btn btn-primary" onclick='cart("RP",{{regular.toppings}},document.getElementById("pizza{{regular.id}}").value,{{regular.price}},{{regular.id}},{{regular.size}});'>Add to cart</button></td>
+                  </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="pizzas" align='center'>
+    <div class="container" align='center'>
+      <h2>Sicillian Pizzas</h2><br>
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th>Pizza</th>
+            <th>Size</th>
+            <th>Toppings</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Customise</th>
+          </tr>
+        </thead>
+          <tbody>
+              {% for sicillian in sicillians %}
+                <tr>
+                  <td>{{sicillian.name}}</td>
+                  {% if sicillian.size == '1' %}
+                    <td>
+                      Small
+                    </td>
+                    {% else %}
+                    <td>
+                      Large
+                    </td>
+                  {% endif %}
+                  <td>{{sicillian.toppings}}</td>
+                  <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="sicillian{{sicillian.id}}"></form></td>
+                  <td>${{sicillian.price}}</td>
+                  <td><button class="btn btn-primary" onclick='cart("SP",{{sicillian.toppings}},document.getElementById("sicillian{{sicillian.id}}").value,{{sicillian.price}},{{sicillian.id}},{{sicillian.size}});'>Add to cart</button></td>
+                </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div id="subs" align='center'>
+  <div class="container" align='center'>
+    <h2>Small Subways</h2><br>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th>Sub</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Customise</th>
+        </tr>
+      </thead>
+        <tbody>
+            {% for sub in subs %}
+            <tr>
+              <td>{{sub.name}}</td>
+              <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="subs{{sub.id}}"></form></td>
+              <td>${{sub.small}}</td>
+              <td><button class="btn btn-primary" onclick="subway_cart('S',document.getElementById('subs{{sub.id}}').value,{{sub.small}},{{sub.id}},1)">Add to cart</button></td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+  </div>
+</div>
+<div id="largesubs" align='center'>
+  <div class="container" align='center'>
+    <h2>Large Subways</h2><br>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th>Sub</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Customise</th>
+        </tr>
+      </thead>
+        <tbody>
+            {% for sub in subs %}
+            <tr>
+              <td>{{sub.name}}</td>
+              <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="subl{{sub.id}}"></form></td>
+              <td>${{sub.large}}</td>
+              <td><button class="btn btn-primary" onclick="subway_cart('S',document.getElementById('subl{{sub.id}}').value,{{sub.large}},{{sub.id}},2)">Add to cart</button></td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+  </div>
+</div>
+<div id="salads" align='center'>
+  <!---type,quantity,price,id-->
+  <div class="container" align='center'>
+    <h2>Salads</h2><br>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th>Salad</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Add</th>
+        </tr>
+      </thead>
+        <tbody>
+            {% for salad in salads %}
+            <tr>
+              <td>{{salad.name}}</td>
+              <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="salad{{salad.id}}"></form></td>
+              <td>${{salad.price}}</td>
+              <td><button class="btn btn-primary" onclick="salads_cart('Sa',document.getElementById('salad{{salad.id}}').value,{{salad.price}},{{salad.id}},0)">Add to cart</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  </div>
+</div>
+<div id="pastas" align='center'>
+  <div class="container" align='center'>
+    <h2>Pastas</h2><br>
+      <!---type,quantity,price,id-->
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th>Pasta</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Add</th>
+        </tr>
+      </thead>
+        <tbody>
+            {% for pasta in pastas %}
+            <tr>
+              <td>{{pasta.name}}</td>
+              <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="pasta{{pasta.id}}"></form></td>
+              <td>${{pasta.price}}</td>
+              <td><button class="btn btn-primary" onclick="pastas_cart('Pa',document.getElementById('pasta{{pasta.id}}').value,{{pasta.price}},{{pasta.id}},0)">Add to cart</button></td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+  </div>
+</div>
+<div id="smplatter" align='center'>
+  <div class="container" align='center'>
+    <h2>Small dinner platters</h2><br>
+    <!---type,quantity,price,id-->
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th>Sub</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Add</th>
+        </tr>
+      </thead>
+        <tbody>
+            {% for platter in platters %}
+            <tr>
+              
+              <td>{{platter.name}}</td>
+              <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="plattersmall{{platter.id}}"></form></td>
+              <td>${{platter.small}}</td>
+              <td><button class="btn btn-primary" onclick="platters_cart('DP',document.getElementById('plattersmall{{platter.id}}').value,{{platter.small}},{{platter.id}},1)">Add to cart</button></td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+  </div>
+</div>
+<div id="lgplatter" align='center'>
+  <div class="container" align='center'>
+    <h2>Large dinner platters</h2><br>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th>Platter</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Add</th>
+        </tr>
+      </thead>
+        <tbody>
+            {% for platter in platters %}
+            <tr>
+              <td>{{platter.name}}</td>
+              <td><form><input type="number" placeholder="Quantity" max="6" min="1" style="width: 60%;" id="platterlarge{{platter.id}}"></form></td>
+              <td>${{platter.large}}</td>
+              <td><button class="btn btn-primary" onclick="platters_cart('DP',document.getElementById('plattersmall{{platter.id}}').value,{{platter.large}},{{platter.id}},2)">Add to cart</button></td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+  </div>
+</div>
+<!-- The Modal -->
+<div id="customiseModel" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p id="content" align="center">
+    </p>
+  </div>
+
+</div>
+<script>
+    var modal = document.getElementById("customiseModel")
+    span = document.querySelector('.close')
+    function cart(type,toppings,quantity,price,id,size) {
+      var content = document.getElementById('content')
+        modal.style.display = "block";
+        var Size = Number(size)
+        if (quantity == 0 || quantity.length == 0){
+          quantity = 1
+        }
+        if(toppings != 0){
+          var total = Number(price) * Number(quantity)
+          content.innerHTML = `
+          <font color="red"><span>Max of ${toppings} toppings</span></font><br><br>
+          <form id="toppings" name="toppings" action="{% url 'set_cart' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" value="${id}" name="id" hidden>
+            <input type="text" value="${type}" name="name" hidden>
+            <input type="number" value="${size}" name="size" hidden>
+            <input type="number" value="${quantity}" name="quantity" hidden><br>
+            <b>Quantity:</b> ${quantity} <br>
+            <b>Total Price($): </b> <input type="text" value="${total.toFixed(2)}" name="price" disabled><br><br>
+          {% for topping in toppings %}
+            <label>{{topping.name}}</label>
+            <input type="checkbox" name="check" class='check' value="{{topping.name}}">&nbsp;
+          {% endfor %}<br><br>
+          <input type="submit" class="btn btn-info" value="Add to cart">
+          </form>
+          <br><br>
+          `
+          checkboxlimit(document.forms.toppings.check, toppings)
+        } else {
+          var total = Number(price) * Number(quantity)
+          content.innerHTML = `
+          <form action="{% url 'set_cart' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" value="${id}" name="id" hidden>
+            <input type="text" value="${type}" name="name" hidden>
+            <input type="number" value="${size}" name="size" hidden>
+          <input type="number" value="${quantity}" name="quantity" hidden><br>
+          <b>Quantity:</b> ${quantity} <br>
+          <b>Total Price($): </b> <input type="text" value="${total.toFixed(2)}" name="price" disabled><br>
+          <br><br>
+          <input type="submit" class="btn btn-info" value="Add to cart">
+          </form>
+          `
+        }
+    }
+
+    function checkboxlimit(checkgroup, limit){
+      var checkgroup=checkgroup
+      var limit=limit
+      for (var i=0; i<checkgroup.length; i++){
+        checkgroup[i].onclick=function(){
+        var checkedcount=0
+        for (var i=0; i<checkgroup.length; i++)
+          checkedcount+=(checkgroup[i].checked)? 1 : 0
+        if (checkedcount>limit){
+          this.checked=false
+          }
+        }
+      }
+    }
+
+    span.onclick = function () {
+      modal.style.display = "none";
+    }
+
+    window.onlick = function (event) {
+      if (event.target == modal){
+        modal.style.display = "none";
+      }
+    }
+
+    function subway_cart(type,quantity,price,id,size) {
+      var content = document.getElementById('content')
+      modal.style.display = "block";
+        if (quantity == 0 || quantity.length == 0){
+          quantity = 1
+        }
+          var total = Number(price) * Number(quantity)
+          content.innerHTML = `
+          <form action="{% url 'set_cart' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" value="${id}" name="id" hidden>
+            <input type="text" value="${type}" name="name" hidden>
+            <input type="number" value="${size}" name="size" hidden>
+            <input type="number" value="${quantity}" name="quantity" id="quantity" hidden><br>
+            <b>Quantity:</b> ${quantity} <br>
+            <b>Total Price($): </b> <input type="number" value="${total.toFixed(2)}" name="price" disabled><br><br>
+            Each extra item is $0.50<br><br>
+            <div id="extras">
+              {% for extra in extras %}
+              <label>{{extra.name}}</label>
+              <input type="checkbox" name="check" class='check' value="{{extra.name}}")">&nbsp;
+              {% endfor %}
+            </div>
+          <br>
+          <input type="submit" class="btn btn-info" value="Add to cart">
+          </form>
+          <br><br>
+          `
+          function attachCheckboxHandlers() {
+        // get reference to element containing toppings checkboxes
+            var el = document.getElementById('extras');
+
+            // get reference to input elements in toppings container element
+            var tops = el.getElementsByTagName('input');
+            
+            // assign updateTotal function to onclick property of each checkbox
+            for (var i=0, len=tops.length; i<len; i++) {
+                if ( tops[i].type === 'checkbox' ) {
+                    tops[i].onclick = updateTotal;
+                }
+            }
+        }
+        
+    // called onclick of toppings checkboxes
+    function updateTotal(e) {
+        // 'this' is reference to checkbox clicked on
+        var form = this.form;
+        
+        // get current value in total text box, using parseFloat since it is a string
+        var val = parseFloat( form.elements['price'].value );
+        
+        // if check box is checked, add its value to val, otherwise subtract it
+        if ( this.checked ) {
+            val += 0.50;
+        } else {
+            val -= 0.50;
+        }
+        
+        // format val with correct number of decimal places
+        // and use it to update value of total text box
+        form.elements['price'].value = formatDecimal(val);
+    }
+        
+    // format val to n number of decimal places
+    // modified version of Danny Goodman's (JS Bible)
+    function formatDecimal(val, n) {
+        n = n || 2;
+        var str = "" + Math.round ( parseFloat(val) * Math.pow(10, n) );
+        while (str.length <= n) {
+            str = "0" + str;
+        }
+        var pt = str.length - n;
+        return str.slice(0,pt) + "." + str.slice(pt);
+    }
+
+    // in script segment below form
+    attachCheckboxHandlers();
+    }
+        // call onload or in script segment below form
+
+    function salads_cart(type,quantity,price,id,size) {
+      var content = document.getElementById('content')
+      modal.style.display = "block";
+        if (quantity == 0 || quantity.length == 0){
+          quantity = 1
+        }
+          var total = Number(price) * Number(quantity)
+          content.innerHTML = `
+          <form action="{% url 'set_cart' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" value="${id}" name="id" hidden>
+            <input type="text" value="${type}" name="name" hidden>
+            <input type="number" value="${size}" name="size" hidden>
+            <input type="number" value="${quantity}" name="quantity" id="quantity" hidden><br>
+            <b>Total Price($): </b> <input type="number" value="${total.toFixed(2)}" name="price" disabled><br><br>
+          <br>
+          <input type="submit" class="btn btn-info" value="Add to cart">
+          </form>
+          <br><br>
+          `
+    }
+
+    function pastas_cart(type,quantity,price,id,size) {
+      var content = document.getElementById('content')
+      modal.style.display = "block";
+        if (quantity == 0 || quantity.length == 0){
+          quantity = 1
+        }
+          var total = Number(price) * Number(quantity)
+          content.innerHTML = `
+          <form action="{% url 'set_cart' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" value="${id}" name="id" hidden>
+            <input type="text" value="${type}" name="name" hidden>
+            <input type="number" value="${size}" name="size" hidden>
+            <input type="number" value="${quantity}" name="quantity" id="quantity" hidden><br>
+            <b>Total Price($): </b> <input type="number" value="${total.toFixed(2)}" name="price" disabled><br><br>
+          <br>
+          <input type="submit" class="btn btn-info" value="Add to cart">
+          </form>
+          <br><br>
+          `
+    }
+
+    function platters_cart(type,quantity,price,id,size) {
+      var content = document.getElementById('content')
+      modal.style.display = "block";
+        if (quantity == 0 || quantity.length == 0){
+          quantity = 1
+        }
+          var total = Number(price) * Number(quantity)
+          content.innerHTML = `
+          <form action="{% url 'set_cart' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" value="${id}" name="id" hidden>
+            <input type="text" value="${type}" name="name" hidden>
+            <input type="number" value="${size}" name="size" hidden>
+            <input type="number" value="${quantity}" name="quantity" id="quantity" hidden><br>
+            <b>Total Price($): </b> <input type="number" value="${total.toFixed(2)}" name="price" disabled><br><br>
+          <br>
+          <input type="submit" class="btn btn-info" value="Add to cart">
+          </form>
+          <br><br>
+          `
+    }
+
+    // Add size field to models
+</script>
+</body>
+</html>

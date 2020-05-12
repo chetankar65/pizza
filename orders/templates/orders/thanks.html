@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <title>Thank you for shopping with us</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Pinocchio's Pizza</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pizza Wallet</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/cart">Cart {% if cart_items %} ({{cart_items}}) {% endif %}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout_view' %}">Logout</a>
+          </li>
+        </ul>
+      </nav><br><br><br>
+    <div class="container" align="center">
+        <div class="alert alert-success">
+            Thank you so much for shopping with us!
+        </div>
+        <div class="alert alert-warning">
+            <i>Remember, keep eating pizza!</i>
+        </div>
+        <br><hr>
+        <a href="/">Back to shopping</a>
+    </div>
+    
+</body>
+</html>
