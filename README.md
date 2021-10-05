@@ -18,5 +18,4 @@ The following HTML files are present:
 
 My personal touch adds a quantity button as well as a 'complete' button incase the admin (owner) is done with a specific order.
 
-Made with love by Chetan Kar
-Bangalore, India
+Chetan Kar
